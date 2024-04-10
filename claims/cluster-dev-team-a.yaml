@@ -1,0 +1,9 @@
+apiVersion: aca.org/v1alpha1
+kind: Cluster
+metadata:
+  name: cluster-dev
+  namespace: team-a
+spec:
+  owners:
+    - name: alice
+      kind: User
