@@ -5,7 +5,7 @@ metadata:
   name: multi-tenant
   namespace: flux-system
 spec:
-  interval: 1m0s
+  interval: 5m0s
   url: ssh://git@github.com/acll19/multi-tenant.git
   ref:
     branch: main
