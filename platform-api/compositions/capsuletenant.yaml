@@ -1,0 +1,43 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: capsuletenant
+spec:
+  compositeTypeRef:
+    apiVersion: aca.org/v1alpha1
+    kind: XTenant
+  mode: Pipeline
+  pipeline:
+    - step: create-tenant
+      functionRef:
+        name: function-go-templating
+      input:
+        apiVersion: gotemplating.fn.crossplane.io/v1beta1
+        kind: GoTemplate
+        source: Inline
+        inline:
+          template: |
+            apiVersion: kubernetes.crossplane.io/v1alpha2
+            kind: Object
+            metadata:
+              name: {{ .observed.composite.resource.metadata.name }}
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: {{ .observed.composite.resource.metadata.name }}
+                crossplane.io/external-name: {{ .observed.composite.resource.metadata.name }}
+            spec:
+              forProvider:
+                manifest:
+                  apiVersion: capsule.clastix.io/v1beta2
+                  kind: Tenant
+                  metadata:
+                    namespace: capsule-system
+                    annotations:
+                      crossplane.io/external-name: {{ .observed.composite.resource.metadata.name }}
+                  spec:
+                    owners: {{ .observed.composite.resource.spec.owners | toYaml | nindent 12 }}
+              providerConfigRef:
+                name: kubernetes-provider
+    - step: automatically-detect-ready-composed-resources
+      functionRef:
+        name: function-auto-ready
+
